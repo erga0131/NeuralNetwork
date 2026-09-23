@@ -1,7 +1,7 @@
 import numpy as np
 
 num = 10000 #学習ループの回数の設定
-n = 1000000 #隠れ層のノード数の設定
+n = 4 #隠れ層のノード数の設定
 
 #入力の4x2行列Xと正解の4x1行列Tを作成
 X = np.array([[0,0],[0,1],[1,0],[1,1]])
@@ -14,7 +14,7 @@ b1 = np.random.randn(1, n) * 0.01
 W2 = np.random.randn(n, 1) * np.sqrt(1 / n)
 b2 = np.random.randn() * 0.01
 #学習率を適当に設定
-eta = 0.1
+eta = 0.5
 
 np.set_printoptions(suppress=True) #結果が見やすいように指数表記をしない
 

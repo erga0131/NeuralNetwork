@@ -27,6 +27,7 @@ for i in range(num):
     z2 = h @ W2 + b2
     y = 1 / (1 + np.exp(-z2))
     if i == 0:
+        print("学習ループ数:"+str(num)+" 隠れ層のノード数:"+str(n))
         print("学習前出力\n"+str(y))
 
     #損失関数（交差エントロピー誤差）

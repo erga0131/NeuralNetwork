@@ -1,22 +1,22 @@
 import numpy as np
 
+num = 10000 #学習ループの回数の設定
+n = 8 #隠れ層のノード数の設定
+
 #入力の4x2行列Xと正解の4x1行列Tを作成
 X = np.array([[0,0],[0,1],[1,0],[1,1]])
 T = np.array([[0],[1],[1],[0]])
 
-#隠れ層の重みとバイアスを初期化。とりあえず[-1,1]、0にしてみる
-W1 = np.random.uniform(-1.0, 1.0, (2, 2))
-b1 = np.array([[0,0]])
+#隠れ層の重みとバイアスを初期化。とりあえず[-1,1]、[-0.01,0.01]にしてみる
+W1 = np.random.randn(2, n) * np.sqrt(1 / 2)
+b1 = np.random.randn(1, n) * 0.01
 #出力層の重みとバイアスを初期化
-W2 = np.random.uniform(-1.0, 1.0, (2, 1))
-b2 = np.array([[0]])
+W2 = np.random.randn(n, 1) * np.sqrt(1 / n)
+b2 = np.random.randn() * 0.01
 #学習率を適当に設定
 eta = 0.1
 
 np.set_printoptions(suppress=True) #結果が見やすいように指数表記をしない
-
-#学習ループの回数の設定
-num = 10000
 
 #学習ループ
 for i in range(num):
@@ -26,12 +26,13 @@ for i in range(num):
     h = 1 / (1 + np.exp(-z1))
     z2 = h @ W2 + b2
     y = 1 / (1 + np.exp(-z2))
-    if i == 0 or i == num -1:
+    if i == 0:
         print(y)
 
     #損失関数（交差エントロピー誤差）
     ##バッチ学習のために独立なデータの同時尤度（積）を対数化した場合は和になる。ただし、データ数が変わってもパラメータが大きく変動して学習が不安定にならないよう、1/Nで影響が減るようにしたほうがよい。和をNで割るということはすなわち平均を取ることになる。
     E = np.mean( -( T * np.log(y) + (1 - T) * np.log(1 - y) ) )
+    print(E)
 
     #逆伝播
     delta2 = y - T #出力層のエラー。4x1行列
@@ -46,3 +47,5 @@ for i in range(num):
     b2 = b2 - eta * db2
     W1 = W1 - eta * dW1
     b1 = b1 - eta * db1
+
+print(y)

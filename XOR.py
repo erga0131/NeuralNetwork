@@ -27,12 +27,12 @@ for i in range(num):
     z2 = h @ W2 + b2
     y = 1 / (1 + np.exp(-z2))
     if i == 0:
-        print(y)
+        print("学習前出力\n"+str(y))
 
     #損失関数（交差エントロピー誤差）
     ##バッチ学習のために独立なデータの同時尤度（積）を対数化した場合は和になる。ただし、データ数が変わってもパラメータが大きく変動して学習が不安定にならないよう、1/Nで影響が減るようにしたほうがよい。和をNで割るということはすなわち平均を取ることになる。
-    E = np.mean( -( T * np.log(y) + (1 - T) * np.log(1 - y) ) )
-    print(E)
+    E = np.mean( -( T * np.log(y + 1e100) + (1 - T) * np.log(1 - y + 1e100) ) )
+    #print(E)
 
     #逆伝播
     delta2 = y - T #出力層のエラー。4x1行列
@@ -48,4 +48,5 @@ for i in range(num):
     W1 = W1 - eta * dW1
     b1 = b1 - eta * db1
 
-print(y)
+print("W1:"+str(W1)+"\nb1:"+str(b1)+"\nW2:"+str(W2)+"\nb2:"+str(b2))
+print("学習後出力\n"+str(y))

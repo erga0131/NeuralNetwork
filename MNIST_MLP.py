@@ -32,6 +32,8 @@ for epoch in range(num):
     X1_shuffled = X1[narabi] #適当に並び替えた行列を作る
     T_shuffled = T[narabi]
 
+    print("["+str(epoch)+"/"+str(num)+"]")
+
     for i in range(0, 60000, batch_size): #並び替えたところから(バッチサイズ,784)を切り取り
         X1_batch = X1_shuffled[i:i+batch_size]
         T_batch = T_shuffled[i:i+batch_size]

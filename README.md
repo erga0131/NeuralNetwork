@@ -48,9 +48,9 @@ python3 MNIST_MLP.py
 ```
 ### 仕様
 - 初期値：Xavierの初期値(MNIST.py)、Heの初期値(MNIST_MLP.py)
-- 活性化関数：Softmax関数(MNIST.py)、隠れ層ReLU+出力層Softmax（MNIST_MLP.py）
+- 活性化関数：Softmax関数(MNIST.py)、隠れ層ReLU+出力層Softmax(MNIST_MLP.py)
 - 損失関数：交差エントロピー誤差
-- 最適化：勾配降下法
+- 最適化：勾配降下法(MNIST.py)、確率的勾配降下法（ミニバッチSGD、MNIST_MLP.py）
 - MNIST.py：最大50エポック（一応損失が0.01未満で早期終了する機能はつけていますが、多分しません）
 - MNIST_MLP.py：サイズ128でミニバッチ学習をし、損失が0.01未満で早期終了。これを20エポック
 

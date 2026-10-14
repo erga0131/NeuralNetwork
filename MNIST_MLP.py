@@ -1,10 +1,27 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-num = 20 #学習ループ数
-eta = 0.1 #学習率。とりあえず定数
-n = 128 #隠れ層のノード数
+num = 15 #学習ループ数
+eta = 0.001 #学習率。Adamを使うので小さくしてみた
+n = 512 #隠れ層のノード数
 batch_size = 128 #ミニバッチのサイズ
+
+#Adamのための初期化
+##移動平均（一次モーメント）で急な変化を軽減（Momentum）
+m_W1 = np.zeros((784, n))
+m_b1 = np.zeros((1, n))
+m_W2 = np.zeros((n, 10))
+m_b2 = np.zeros((1, 10))
+##分散の移動平均（二次モーメント）で勾配の大きさによって学習率を調整していく（RMSProp）
+v_W1 = np.zeros((784, n))
+v_b1 = np.zeros((1, n))
+v_W2 = np.zeros((n, 10))
+v_b2 = np.zeros((1, 10))
+##外生的に決定する値
+t = 0 #学習ステップ数の保持
+beta_1 = 0.9 #一次モーメントの減衰率（これくらいが目安らしい）
+beta_2 = 0.999 #二次モーメントの減衰率（同上）
+
 
 #トレーニングデータを読み込む
 ##https://github.com/cvdfoundation/mnistからダウンロード、gzを展開した状態で保存しておく。
@@ -50,6 +67,7 @@ for epoch in range(num):
 
         ##損失の計算
         E = -(1 / batch_size)*np.sum(T_batch * np.log(Y + 1e-15)) #正解クラスが出力される確率ykから確率質量関数がΠn k=1 yk^tkになる。独立同分布の過程を置けば、負の平均対数尤度はE=-(1/N)logL=-(1/N)(Σ N i=1 Σ 10 k=1 tik*log(yik)になる。ただし、yikが0のときlogが-∞に飛んでしまうため、10^-15を足してゼロにならないようにする。
+        #print("["+str(i)+"/60000]"+str(E))
 
         #逆伝播
         delta2 = (1 / batch_size) * (Y - T_batch) #エラーを事前にNで割っておいたもの。
@@ -59,11 +77,34 @@ for epoch in range(num):
         delta1 = ( delta2 @ W2.T ) * (Z1 > 0)  #ReLUの微分は不連続で定義できないが、>0のとき1,<=0のとき0として、前者は誤差の値をそのまま戻し、後者は誤差自体戻さない。 60000x10行列と10xn行列の積で60000xn行列
         dW1 = X1_batch.T @ delta1
         db1 = np.sum(delta1, axis=0, keepdims=True)
+
+        ##Adamの実装
+        t += 1
+        ###一次モーメントの更新
+        m_W2 = beta_1 * m_W2 + (1 - beta_1) * dW2
+        m_W1 = beta_1 * m_W1 + (1 - beta_1) * dW1
+        m_b2 = beta_1 * m_b2 + (1 - beta_1) * db2
+        m_b1 = beta_1 * m_b1 + (1 - beta_1) * db1
+        ###二次モーメントの更新
+        v_W2 = beta_2 * v_W2 + (1 - beta_2) * (dW2 ** 2)
+        v_W1 = beta_2 * v_W1 + (1 - beta_2) * (dW1 ** 2)
+        v_b2 = beta_2 * v_b2 + (1 - beta_2) * (db2 ** 2)
+        v_b1 = beta_2 * v_b1 + (1 - beta_2) * (db1 ** 2)
+        ###学習初期はほぼ0になってしまうので、カウントtとベータの値を使って補正。tが進むほど分母は1に近くなり値が大きくなる（最初は小さくなる）
+        m_W2_hat = m_W2 / (1 - beta_1 ** t)
+        m_W1_hat = m_W1 / (1 - beta_1 ** t)
+        m_b2_hat = m_b2 / (1 - beta_1 ** t)
+        m_b1_hat = m_b1 / (1 - beta_1 ** t)
+        v_W2_hat = v_W2 / (1 - beta_2 ** t)
+        v_W1_hat = v_W1 / (1 - beta_2 ** t)
+        v_b2_hat = v_b2 / (1 - beta_2 ** t)
+        v_b1_hat = v_b1 / (1 - beta_2 ** t)
+
         ###値を更新
-        W2 = W2 - eta * dW2
-        b2 = b2 - eta * db2
-        W1 = W1 - eta * dW1
-        b1 = b1 - eta * db1
+        W2 = W2 - eta * (m_W2_hat / (np.sqrt(v_W2_hat) + 1e-15))
+        b2 = b2 - eta * (m_b2_hat / (np.sqrt(v_b2_hat) + 1e-15))
+        W1 = W1 - eta * (m_W1_hat / (np.sqrt(v_W1_hat) + 1e-15))
+        b1 = b1 - eta * (m_b1_hat / (np.sqrt(v_b1_hat) + 1e-15))
 
 #結果を確認する
 

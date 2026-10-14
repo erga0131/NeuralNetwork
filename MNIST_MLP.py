@@ -50,10 +50,6 @@ for epoch in range(num):
 
         ##損失の計算
         E = -(1 / batch_size)*np.sum(T_batch * np.log(Y + 1e-15)) #正解クラスが出力される確率ykから確率質量関数がΠn k=1 yk^tkになる。独立同分布の過程を置けば、負の平均対数尤度はE=-(1/N)logL=-(1/N)(Σ N i=1 Σ 10 k=1 tik*log(yik)になる。ただし、yikが0のときlogが-∞に飛んでしまうため、10^-15を足してゼロにならないようにする。
-        if E < 0.01:
-        #    print(str(i)+"回で早期終了")
-            break
-        #print("["+str(i)+"/"+str(num)+"]"+str(E))
 
         #逆伝播
         delta2 = (1 / batch_size) * (Y - T_batch) #エラーを事前にNで割っておいたもの。

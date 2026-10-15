@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 num = 15 #学習ループ数
 eta = 0.001 #学習率。Adamを使うので小さくしてみた
 n = 512 #隠れ層のノード数
-batch_size = 128 #ミニバッチのサイズ
+batch_size = 100 #ミニバッチのサイズ
 
 #Adamのための初期化
 ##移動平均（一次モーメント）で急な変化を軽減（Momentum）
